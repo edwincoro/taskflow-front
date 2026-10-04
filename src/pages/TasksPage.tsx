@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { EmptyState } from "../components/common/EmptyState";
 import { Loading } from "../components/common/Loading";
@@ -7,15 +8,34 @@ import { SearchField } from "../components/common/SearchField";
 import { RecordModal } from "../components/ui/RecordModal";
 import { TaskRow } from "../components/tasks/TaskRow";
 import { useTasks } from "../hooks/useTasks";
+import { useProjects } from "../hooks/useProjects";
 import { getErrorMessage } from "../lib/errors";
 import type { RecordInput, Task } from "../types/domain";
 
 export function TasksPage() {
-  const { tasks, loading, error: loadError, save, remove, toggle } = useTasks();
+  const { projectId } = useParams();
+  const navigate = useNavigate();
+  const {
+    tasks,
+    loading,
+    error: tasksError,
+    save,
+    remove,
+    toggle,
+  } = useTasks(projectId);
+  const {
+    projects,
+    loading: projectsLoading,
+    error: projectsError,
+  } = useProjects();
+  const selectedProject = projects.find((project) => project.id === projectId);
   const [query, setQuery] = useState("");
   const [modal, setModal] = useState<Task | null | undefined>(undefined);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const loadError = tasksError || projectsError;
+  const projectName =
+    selectedProject?.name || selectedProject?.title || "Proyecto";
   const visible = tasks.filter((task) =>
     `${task.title || ""} ${task.description || ""}`
       .toLowerCase()
@@ -61,13 +81,31 @@ export function TasksPage() {
     }
   }
 
+  if (projectId && !projectsLoading && !projectsError && !selectedProject) {
+    return (
+      <div className="page-content">
+        <EmptyState
+          text="No encontramos este proyecto"
+          action="Volver a proyectos"
+          onClick={() => navigate("/projects")}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="page-content">
       <section className="page-heading">
         <div>
-          <span className="eyebrow">BANDEJA PERSONAL</span>
-          <h1>Tareas</h1>
-          <p>Pequeños avances hacen grandes proyectos.</p>
+          <span className="eyebrow">
+            {projectId ? "TAREAS DEL PROYECTO" : "BANDEJA PERSONAL"}
+          </span>
+          <h1>{projectId ? projectName : "Tareas"}</h1>
+          <p>
+            {projectId
+              ? selectedProject?.description || "Tareas de este proyecto."
+              : "Pequeños avances hacen grandes proyectos."}
+          </p>
         </div>
         <button className="button primary" onClick={() => setModal(null)}>
           <Plus size={17} /> Nueva tarea
@@ -83,7 +121,7 @@ export function TasksPage() {
           <div>
             <span className="eyebrow">TAREAS</span>
             <h2>
-              Todas las tareas{" "}
+              {projectId ? `Tareas de ${projectName}` : "Todas las tareas"}{" "}
               <span className="heading-count">{tasks.length}</span>
             </h2>
           </div>
@@ -115,6 +153,7 @@ export function TasksPage() {
         <RecordModal
           type="task"
           record={modal || undefined}
+          defaultProjectId={projectId}
           saving={saving}
           onClose={() => setModal(undefined)}
           onSubmit={submit}

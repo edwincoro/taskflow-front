@@ -7,6 +7,7 @@ Aplicación web SPA construida con React y TypeScript para administrar proyectos
 - Node.js 20.19+ o 22.12+.
 - npm.
 - Backend Taskflow iniciado y accesible desde el navegador.
+  - Repositorio: https://github.com/edwincoro/taskflow-api.git
 - Git para clonar o publicar el proyecto.
 
 ## Instalación y ejecución
@@ -52,22 +53,24 @@ El backend debe permitir CORS desde el origen del frontend. Al cambiar `.env`, r
 - **Crear cuenta e iniciar sesión:** el registro usa `nombre`, `correo` y `contraseña`. El backend crea la cuenta, pero no devuelve un JWT en esa respuesta; por eso la aplicación inicia sesión automáticamente después del registro.
 - **Sesión JWT:** el token y los datos básicos del usuario se guardan en `localStorage`. Las peticiones protegidas envían `Authorization: Bearer <token>`. Las rutas privadas redirigen a `/login` si no hay sesión.
 - **Dashboard (`/dashboard`):** presenta métricas, proyectos recientes, tareas pendientes y progreso de tareas.
-- **Proyectos (`/projects`):** permite listar, buscar, crear, editar y eliminar proyectos.
-- **Tareas (`/tasks`):** lista tareas de todos los proyectos del usuario; permite buscar, crear, editar, eliminar, completar y volver a marcar como pendiente. Cada tarea queda asociada a un proyecto.
+- **Proyectos (`/projects`):** permite listar, buscar, crear, editar y eliminar proyectos. Se puede abrir el detalle de sus tareas desde el nombre del proyecto o desde la sección **TUS PROYECTOS** de la barra lateral.
+- **Tareas (`/tasks`):** lista las tareas de todos los proyectos del usuario; permite buscar, crear, editar, eliminar, completar y volver a marcar como pendiente. Cada tarea queda asociada a un proyecto.
+- **Tareas de un proyecto (`/projects/:projectId`):** muestra solo las tareas asociadas al proyecto seleccionado. Desde esta vista, el formulario de creación preselecciona ese proyecto. Si el proyecto no existe, se ofrece volver al listado.
 - **Ajustes (`/settings`):** consulta el perfil autenticado, prueba el estado del backend y permite cerrar sesión.
 - **Feedback de interfaz:** muestra carga, errores, estados vacíos y confirmaciones de éxito/error mediante Sonner.
 - **Diseño adaptable:** navegación y formularios se ajustan a pantallas móviles y de escritorio.
 
 ## Rutas de la aplicación
 
-| Ruta         | Acceso       | Vista                                     |
-| ------------ | ------------ | ----------------------------------------- |
-| `/login`     | Pública      | Inicio de sesión.                         |
-| `/register`  | Pública      | Registro de usuario.                      |
-| `/dashboard` | Requiere JWT | Resumen de actividad.                     |
-| `/projects`  | Requiere JWT | Gestión de proyectos.                     |
-| `/tasks`     | Requiere JWT | Gestión de tareas asociadas a proyectos.  |
-| `/settings`  | Requiere JWT | Perfil, estado de API y cierre de sesión. |
+| Ruta                   | Acceso       | Vista                                                 |
+| ---------------------- | ------------ | ----------------------------------------------------- |
+| `/login`               | Pública      | Inicio de sesión.                                     |
+| `/register`            | Pública      | Registro de usuario.                                  |
+| `/dashboard`           | Requiere JWT | Resumen de actividad.                                 |
+| `/projects`            | Requiere JWT | Gestión y listado de proyectos.                       |
+| `/projects/:projectId` | Requiere JWT | Tareas del proyecto identificado por `projectId`.     |
+| `/tasks`               | Requiere JWT | Gestión de tareas de todos los proyectos del usuario. |
+| `/settings`            | Requiere JWT | Perfil, estado de API y cierre de sesión.             |
 
 No se implementa una landing page pública: al abrir la aplicación sin sesión, el usuario es enviado al inicio de sesión.
 

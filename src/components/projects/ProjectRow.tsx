@@ -1,4 +1,5 @@
 import { Settings2, Trash2 } from "lucide-react";
+import { Link } from "react-router-dom";
 import type { Project } from "../../types/domain";
 
 interface ProjectRowProps {
@@ -28,7 +29,12 @@ export function ProjectRow({
         {initials}
       </span>
       <div className="project-row-main">
-        <strong>{name}</strong>
+        <Link
+          className="project-title-link"
+          to={`/projects/${encodeURIComponent(project.id)}`}
+        >
+          <strong>{name}</strong>
+        </Link>
         <small>{project.description || "Sin descripción"}</small>
       </div>
       <span className="project-status">

@@ -76,7 +76,12 @@ export function MainLayout() {
           <div className="sidebar-projects">
             <span className="nav-label">TUS PROYECTOS</span>
             {projects.slice(0, 4).map((project, index) => (
-              <NavLink key={project.id} className="project-nav" to="/projects">
+              <NavLink
+                key={project.id}
+                className="project-nav"
+                to={`/projects/${encodeURIComponent(project.id)}`}
+                onClick={() => setMobileNav(false)}
+              >
                 <i className={`project-dot dot-${index % 4}`} />
                 {project.name || project.title || "Proyecto"}
               </NavLink>

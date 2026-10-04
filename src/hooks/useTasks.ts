@@ -10,7 +10,7 @@ import {
 import { useProjects } from "./useProjects";
 import type { RecordInput, Task } from "../types/domain";
 
-export function useTasks() {
+export function useTasks(projectId?: string) {
   const { token } = useAuth();
   const { projects } = useProjects();
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -22,6 +22,10 @@ export function useTasks() {
     setLoading(true);
     setError("");
     try {
+      if (projectId) {
+        setTasks(await listTasks(token, projectId));
+        return;
+      }
       const results = await Promise.allSettled(
         projects.map((project) => listTasks(token, project.id)),
       );
@@ -37,7 +41,7 @@ export function useTasks() {
     } finally {
       setLoading(false);
     }
-  }, [token, projects]);
+  }, [token, projects, projectId]);
 
   useEffect(() => {
     void Promise.resolve().then(refresh);

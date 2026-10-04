@@ -15,6 +15,7 @@ interface RecordModalProps {
   record?: Project | Task;
   saving: boolean;
   projects?: ProjectOption[];
+  defaultProjectId?: string;
   onClose: () => void;
   onSubmit: (
     input: RecordInput,
@@ -27,6 +28,7 @@ export function RecordModal({
   type,
   record,
   saving,
+  defaultProjectId,
   onClose,
   onSubmit,
 }: RecordModalProps) {
@@ -40,9 +42,13 @@ export function RecordModal({
     const input: RecordInput = {
       ...(project
         ? { name: String(values.get("name") || "") }
-        : { title: String(values.get("title") || "") }),
+        : {
+            title: String(values.get("title") || ""),
+            projectId: String(
+              values.get("projectId") || defaultProjectId || "",
+            ),
+          }),
       description: String(values.get("description") || ""),
-      ...(!project ? { projectId: String(values.get("projectId") || "") } : {}),
     };
     try {
       await onSubmit(
@@ -113,8 +119,16 @@ export function RecordModal({
               <select
                 name="projectId"
                 required
-                defaultValue={(record as Task | undefined)?.projectId || ""}
-                disabled={projects.length === 0 || Boolean(record)}
+                defaultValue={
+                  (record as Task | undefined)?.projectId ||
+                  defaultProjectId ||
+                  ""
+                }
+                disabled={
+                  projects.length === 0 ||
+                  Boolean(record) ||
+                  Boolean(defaultProjectId)
+                }
               >
                 <option value="" disabled>
                   Selecciona un proyecto
